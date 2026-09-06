@@ -1,0 +1,26 @@
+openapi: 3.1.0
+info:
+  title: Medical 3D Shared Viewer API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+paths:
+  /shared-viewers/{token}/manifest:
+    get:
+      operationId: getSharedViewerManifest
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+            minLength: 32
+            maxLength: 256
+      responses:
+        '200':
+          description: Viewer manifest
+        '404':
+          description: Unknown share
+        '410':
+          description: Expired or revoked share
+
