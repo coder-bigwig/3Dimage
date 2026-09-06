@@ -27,7 +27,7 @@ pnpm --dir front dev
 mvn -f backend/pom.xml spring-boot:run
 ```
 
-The development viewer route is:
+When the frontend dev server is used without Nginx, set `VITE_API_BASE_URL=http://localhost:8080/api/v1`. The synthetic demo viewer route is:
 
 ```text
 http://localhost:5173/share/demo-valid-token-00000000000000000000
@@ -38,6 +38,8 @@ http://localhost:5173/share/demo-valid-token-00000000000000000000
 ```powershell
 docker compose --env-file deploy/compose/.env.example -f deploy/compose/docker-compose.yml up -d --build
 ```
+
+After all services become healthy, open `http://localhost:8088/share/demo-valid-token-00000000000000000000`. The expired-state fixture is `http://localhost:8088/share/demo-expired-token-000000000000000000`.
 
 ## Security
 

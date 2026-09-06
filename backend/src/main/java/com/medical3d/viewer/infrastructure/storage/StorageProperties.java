@@ -3,8 +3,8 @@ package com.medical3d.viewer.infrastructure.storage;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("storage")
-public record StorageProperties(String provider, String endpoint, String accessKey, String secretKey,
-                                String bucket, long signedUrlTtlSeconds) {
+public record StorageProperties(String provider, String endpoint, String publicEndpoint, String accessKey,
+                                String secretKey, String bucket, long signedUrlTtlSeconds) {
     public StorageProperties {
         if (provider == null || endpoint == null || accessKey == null || secretKey == null || bucket == null) {
             throw new IllegalArgumentException("Storage configuration is incomplete");

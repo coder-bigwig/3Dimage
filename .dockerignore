@@ -1,0 +1,13 @@
+.git
+.worktrees
+.superpowers
+front/node_modules
+front/dist
+front/test-results
+front/playwright-report
+front/coverage
+scripts/model-pipeline/node_modules
+scripts/model-pipeline/dist
+backend/target
+data
+logs

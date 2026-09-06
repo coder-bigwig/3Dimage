@@ -40,8 +40,12 @@ public final class MinioStorageService implements StorageService {
         key = StorageValidation.objectKey(key);
         int seconds = StorageValidation.validitySeconds(validity, properties.signedUrlTtlSeconds());
         try {
-            return URI.create(client.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+            URI signedUrl = URI.create(client.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
                 .method(Method.GET).bucket(properties.bucket()).object(key).expiry(seconds).build()));
+            if (properties.publicEndpoint() == null || properties.publicEndpoint().isBlank()) return signedUrl;
+            String base = properties.publicEndpoint().replaceAll("/+$", "");
+            String query = signedUrl.getRawQuery() == null ? "" : "?" + signedUrl.getRawQuery();
+            return URI.create(base + signedUrl.getRawPath() + query);
         } catch (Exception exception) { throw unavailable(exception); }
     }
 

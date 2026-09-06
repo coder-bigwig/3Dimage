@@ -8,6 +8,8 @@ viewer-check.png
 front/node_modules/
 front/dist/
 front/coverage/
+front/test-results/
+front/playwright-report/
 front/.env*
 !front/.env.example
 
@@ -15,6 +17,10 @@ front/.env*
 backend/target/
 backend/.env*
 !backend/.env.example
+
+# Model pipeline generated files
+scripts/model-pipeline/node_modules/
+scripts/model-pipeline/dist/
 
 # IDE and OS
 .idea/

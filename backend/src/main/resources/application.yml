@@ -23,9 +23,14 @@ management:
       exposure:
         include: health,info
 
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
 storage:
   provider: ${STORAGE_PROVIDER:minio}
   endpoint: ${STORAGE_ENDPOINT:http://localhost:9000}
+  public-endpoint: ${STORAGE_PUBLIC_ENDPOINT:}
   access-key: ${STORAGE_ACCESS_KEY:minioadmin}
   secret-key: ${STORAGE_SECRET_KEY:minioadmin}
   bucket: ${STORAGE_BUCKET:medical3d}
