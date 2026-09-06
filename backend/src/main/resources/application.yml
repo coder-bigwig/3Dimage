@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: medical3d-viewer-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/medical3d}
+    username: ${DB_USERNAME:medical3d}
+    password: ${DB_PASSWORD:medical3d_dev}
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  flyway:
+    enabled: true
+
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+storage:
+  provider: ${STORAGE_PROVIDER:minio}
+  endpoint: ${STORAGE_ENDPOINT:http://localhost:9000}
+  access-key: ${STORAGE_ACCESS_KEY:minioadmin}
+  secret-key: ${STORAGE_SECRET_KEY:minioadmin}
+  bucket: ${STORAGE_BUCKET:medical3d}
+  signed-url-ttl-seconds: ${STORAGE_SIGNED_URL_TTL_SECONDS:900}
