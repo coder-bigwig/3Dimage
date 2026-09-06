@@ -14,7 +14,7 @@
 
 **Files:** Modify `front/src/features/viewer/ViewerShell.test.tsx`.
 
-- [ ] Add a parameterized test for these exact cases: `三维` model only; `影像` image only; `三维+横断面` model plus transverse image; `冠状面` image only; `矢状面` image only; `三维+冠状面` model plus coronal image; `三维+矢状面` model plus sagittal image. Open the view menu, click each item, and assert `viewer-model-panel` and `ct-preview` presence with explicit `if` branches.
+- [ ] Add a parameterized test for these exact cases: `三维` model only with footer; `影像` image only with transverse class and no footer; `三维+横断面` model plus transverse image and no footer; `冠状面` image only with coronal class and no footer; `矢状面` image only with sagittal class and no footer; `三维+冠状面` model plus coronal image and no footer; `三维+矢状面` model plus sagittal image and no footer. Open the view menu, click each item, and assert `viewer-model-panel`, `ct-preview`, orientation class, and footer presence.
 - [ ] Add a test that the `网站标题` banner is absent while the `模型` button, `下载` button, and `查看器工具` navigation remain.
 - [ ] Run `pnpm --dir front test -- src/features/viewer/ViewerShell.test.tsx` and confirm the new tests fail because the header is still rendered and every mode currently renders both panels.
 
@@ -23,8 +23,8 @@
 **Files:** Modify `front/src/features/viewer/ViewerShell.tsx` and `front/src/features/viewer/CtPreview.tsx`.
 
 - [ ] Remove only the `viewer-site-header` JSX from `ViewerShell`; keep the model/download tabs and toolbar.
-- [ ] Add typed view mappings: `影像`, `冠状面`, `矢状面` map to image-only orientations; `三维+横断面`, `三维+冠状面`, `三维+矢状面` map to stacked layouts; `三维` stays model-only. Preserve the current model panel for `三维+AR` and `裁剪框` because no supplied screenshot defines a replacement.
-- [ ] Change `CtPreview` to accept `orientation: '横断面' | '冠状面' | '矢状面'`, expose it in its accessible label, preserve slice controls and `data-testid="ct-preview"`, and add an orientation class.
+- [ ] Add typed view mappings: `影像`, `冠状面`, `矢状面` map to image-only orientations; `三维+横断面`, `三维+冠状面`, `三维+矢状面` map to stacked layouts; `三维` stays model-only. Preserve the current model panel for `三维+AR` and `裁剪框` because no supplied screenshot defines a replacement. Render the footer only for `三维`.
+- [ ] Change `CtPreview` to accept `orientation: '横断面' | '冠状面' | '矢状面'`, expose it in its accessible label, preserve slice controls and `data-testid="ct-preview"`, add an orientation class, and keep the controls before the image in DOM/layout order.
 - [ ] Run the focused ViewerShell test and confirm it passes.
 
 ### Task 3: Match the panel sizing and orientation presentation
