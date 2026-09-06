@@ -5,9 +5,19 @@
     SELECT id, result_id, name, scene_state::text AS scene_state, version, created_at, updated_at
     FROM viewer_plan WHERE id = #{id}
   </select>
+  <select id="belongsToResult" resultType="boolean">
+    SELECT EXISTS(SELECT 1 FROM viewer_plan WHERE id = #{id} AND result_id = #{resultId})
+  </select>
+  <insert id="insert">
+    INSERT INTO viewer_plan (id, result_id, name, scene_state, version, created_at, updated_at)
+    VALUES (#{id}, #{resultId}, #{name}, CAST(#{sceneState} AS jsonb), #{version}, #{createdAt}, #{updatedAt})
+  </insert>
   <update id="updateState">
-    UPDATE viewer_plan SET scene_state = CAST(#{sceneState} AS jsonb), version = version + 1,
+    UPDATE viewer_plan SET name = #{name}, scene_state = CAST(#{sceneState} AS jsonb), version = version + 1,
            updated_at = CURRENT_TIMESTAMP
-    WHERE id = #{id} AND version = #{expectedVersion}
+    WHERE id = #{id} AND result_id = #{resultId} AND version = #{expectedVersion}
   </update>
+  <delete id="deleteByIdAndResultId">
+    DELETE FROM viewer_plan WHERE id = #{id} AND result_id = #{resultId}
+  </delete>
 </mapper>

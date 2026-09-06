@@ -6,5 +6,8 @@ import java.util.Optional;
 import java.util.UUID;
 @Mapper public interface ViewerPlanMapper {
     Optional<ViewerPlanEntity> findById(@Param("id") UUID id);
-    int updateState(@Param("id") UUID id, @Param("sceneState") String sceneState, @Param("expectedVersion") int expectedVersion);
+    boolean belongsToResult(@Param("id") UUID id, @Param("resultId") UUID resultId);
+    int insert(ViewerPlanEntity entity);
+    int updateState(UpdatePlanStateCommand command);
+    int deleteByIdAndResultId(@Param("id") UUID id, @Param("resultId") UUID resultId);
 }

@@ -33,7 +33,62 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ApiError' }
+  /shared-viewers/{token}/plans:
+    post:
+      operationId: createViewerPlan
+      parameters:
+        - $ref: '#/components/parameters/ShareToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SavePlanRequest' }
+      responses:
+        '201': { description: Plan created }
+        '403': { description: Save permission denied }
+        '422': { description: Invalid scene state }
+  /shared-viewers/{token}/plans/{planId}:
+    get:
+      operationId: getViewerPlan
+      parameters:
+        - $ref: '#/components/parameters/ShareToken'
+        - $ref: '#/components/parameters/PlanId'
+      responses:
+        '200': { description: Viewer plan }
+        '404': { description: Plan not found }
+    put:
+      operationId: updateViewerPlan
+      parameters:
+        - $ref: '#/components/parameters/ShareToken'
+        - $ref: '#/components/parameters/PlanId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SavePlanRequest' }
+      responses:
+        '200': { description: Plan updated }
+        '409': { description: Plan version conflict }
+        '422': { description: Invalid scene state }
+    delete:
+      operationId: deleteViewerPlan
+      parameters:
+        - $ref: '#/components/parameters/ShareToken'
+        - $ref: '#/components/parameters/PlanId'
+      responses:
+        '204': { description: Plan deleted }
 components:
+  parameters:
+    ShareToken:
+      in: path
+      name: token
+      required: true
+      schema: { type: string, minLength: 32, maxLength: 256 }
+    PlanId:
+      in: path
+      name: planId
+      required: true
+      schema: { type: string, format: uuid }
   schemas:
     ViewerManifest:
       type: object
@@ -87,3 +142,47 @@ components:
         message: { type: string }
         requestId: { type: string }
         details: { type: object, additionalProperties: true }
+    SavePlanRequest:
+      type: object
+      required: [name, expectedVersion, sceneState, measurements, annotations]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        expectedVersion: { type: integer, minimum: 0 }
+        sceneState: { type: object, additionalProperties: true }
+        measurements:
+          type: array
+          maxItems: 200
+          items: { $ref: '#/components/schemas/MeasurementEvent' }
+        annotations:
+          type: array
+          maxItems: 200
+          items: { $ref: '#/components/schemas/AnnotationEvent' }
+    Point3D:
+      type: object
+      required: [x, y, z]
+      properties:
+        x: { type: number }
+        y: { type: number }
+        z: { type: number }
+    MeasurementEvent:
+      type: object
+      required: [id, type, points, style]
+      properties:
+        id: { type: string, format: uuid }
+        layerId: { type: [string, 'null'], format: uuid }
+        type: { type: string, enum: [LENGTH, DIAMETER, ANGLE, CLOSED_AREA] }
+        points:
+          type: array
+          minItems: 1
+          maxItems: 128
+          items: { $ref: '#/components/schemas/Point3D' }
+        style: { type: object, additionalProperties: true }
+    AnnotationEvent:
+      type: object
+      required: [id, text, point, style]
+      properties:
+        id: { type: string, format: uuid }
+        layerId: { type: [string, 'null'], format: uuid }
+        text: { type: string, minLength: 1, maxLength: 1000 }
+        point: { $ref: '#/components/schemas/Point3D' }
+        style: { type: object, additionalProperties: true }

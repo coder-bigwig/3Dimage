@@ -6,4 +6,10 @@
            version, created_at, updated_at
     FROM measurement WHERE plan_id = #{planId} ORDER BY created_at, id
   </select>
+  <delete id="deleteByPlanId">DELETE FROM measurement WHERE plan_id = #{planId}</delete>
+  <insert id="insert">
+    INSERT INTO measurement (id, plan_id, layer_id, type, geometry, style, version, created_at, updated_at)
+    VALUES (#{id}, #{planId}, #{layerId}, #{type}, CAST(#{geometry} AS jsonb), CAST(#{style} AS jsonb),
+            #{version}, #{createdAt}, #{updatedAt})
+  </insert>
 </mapper>
