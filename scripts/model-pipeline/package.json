@@ -1,0 +1,9 @@
+{
+  "name": "medical3d-model-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "vitest run", "typecheck": "tsc --noEmit", "build": "tsc" },
+  "dependencies": { "fflate": "^0.8.2" },
+  "devDependencies": { "@types/node": "^24.0.0", "typescript": "^6.0.3", "vitest": "^5.0.0" }
+}
