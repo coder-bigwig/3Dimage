@@ -6,6 +6,7 @@ import {
   getSharedViewerManifest,
 } from '../../api/sharedViewer'
 import { ShareErrorState } from './ShareErrorState'
+import { ViewerShell } from '../../features/viewer/ViewerShell'
 
 function redactBrowserAddress() {
   if (window.location.pathname.startsWith('/share/') && window.location.pathname !== '/share/viewer') {
@@ -44,15 +45,5 @@ export function ShareViewerPage() {
     return <ShareErrorState error={error} onRetry={() => void manifestQuery.refetch()} />
   }
 
-  return (
-    <main className="viewer-placeholder" aria-label={manifestQuery.data.title}>
-      <header>
-        <h1>{manifestQuery.data.title}</h1>
-        <span>{manifestQuery.data.coordinateSystem} · {manifestQuery.data.unit}</span>
-      </header>
-      <div className="viewer-placeholder__canvas" data-testid="viewer-canvas">
-        3D 查看器正在初始化
-      </div>
-    </main>
-  )
+  return <ViewerShell manifest={manifestQuery.data} />
 }

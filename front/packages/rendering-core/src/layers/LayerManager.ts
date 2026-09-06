@@ -75,7 +75,12 @@ export class LayerManager {
   }
 
   visibleIds() { return [...this.#layers.values()].filter((layer) => layer.visible).map((layer) => layer.id) }
-  snapshots(): LayerSnapshot[] { return [...this.#layers.values()].map(({ object: _, ...layer }) => ({ ...layer })) }
+  snapshots(): LayerSnapshot[] {
+    return [...this.#layers.values()].map(layer => ({
+      id: layer.id, visible: layer.visible, opacity: layer.opacity,
+      color: layer.color, loadState: layer.loadState,
+    }))
+  }
 
   objectForEngine(id: string) { return this.require(id).object }
   remove(id: string) { const value = this.require(id); this.#layers.delete(id); return value.object }
