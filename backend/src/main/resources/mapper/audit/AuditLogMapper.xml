@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.medical3d.viewer.modules.audit.mapper.AuditLogMapper">
+  <insert id="insert">
+    INSERT INTO audit_log (id, result_id, share_id, action, actor_hash, metadata, created_at)
+    VALUES (#{id}, #{resultId}, #{shareId}, #{action}, #{actorHash}, CAST(#{metadata} AS jsonb), #{createdAt})
+  </insert>
+</mapper>

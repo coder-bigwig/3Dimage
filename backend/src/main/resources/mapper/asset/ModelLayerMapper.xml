@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.medical3d.viewer.modules.asset.mapper.ModelLayerMapper">
+  <select id="findByResultId" resultType="com.medical3d.viewer.modules.asset.entity.ModelLayerEntity">
+    SELECT id, result_id, parent_id, code, name, default_color, default_opacity, default_visible,
+           volume_ml, sort_order, base_transform::text AS base_transform, created_at, updated_at
+    FROM model_layer WHERE result_id = #{resultId} ORDER BY sort_order, id
+  </select>
+</mapper>

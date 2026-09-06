@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.medical3d.viewer.modules.share.mapper.ViewerShareMapper">
+  <select id="findByTokenHash" resultType="com.medical3d.viewer.modules.share.entity.ViewerShareEntity">
+    SELECT id, result_id, token_hash, permissions::text AS permissions, expires_at, revoked_at, created_at
+    FROM viewer_share WHERE token_hash = #{tokenHash}
+  </select>
+</mapper>

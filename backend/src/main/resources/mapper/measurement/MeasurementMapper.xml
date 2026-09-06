@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.medical3d.viewer.modules.measurement.mapper.MeasurementMapper">
+  <select id="findByPlanId" resultType="com.medical3d.viewer.modules.measurement.entity.MeasurementEntity">
+    SELECT id, plan_id, layer_id, type, geometry::text AS geometry, style::text AS style,
+           version, created_at, updated_at
+    FROM measurement WHERE plan_id = #{planId} ORDER BY created_at, id
+  </select>
+</mapper>

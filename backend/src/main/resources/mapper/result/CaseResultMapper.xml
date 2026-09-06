@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.medical3d.viewer.modules.result.mapper.CaseResultMapper">
+    <insert id="insert">
+        INSERT INTO case_result
+          (id, case_code, title, unit, coordinate_system, manifest_version, status, created_at, updated_at)
+        VALUES
+          (#{id}, #{caseCode}, #{title}, #{unit}, #{coordinateSystem}, #{manifestVersion}, #{status}, #{createdAt}, #{updatedAt})
+    </insert>
+    <select id="findPublishedById" resultType="com.medical3d.viewer.modules.result.entity.CaseResultEntity">
+        SELECT id, case_code, title, unit, coordinate_system, manifest_version, status, created_at, updated_at
+        FROM case_result
+        WHERE id = #{id} AND status = 'PUBLISHED'
+    </select>
+</mapper>

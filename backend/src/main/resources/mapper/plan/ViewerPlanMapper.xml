@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.medical3d.viewer.modules.plan.mapper.ViewerPlanMapper">
+  <select id="findById" resultType="com.medical3d.viewer.modules.plan.entity.ViewerPlanEntity">
+    SELECT id, result_id, name, scene_state::text AS scene_state, version, created_at, updated_at
+    FROM viewer_plan WHERE id = #{id}
+  </select>
+  <update id="updateState">
+    UPDATE viewer_plan SET scene_state = CAST(#{sceneState} AS jsonb), version = version + 1,
+           updated_at = CURRENT_TIMESTAMP
+    WHERE id = #{id} AND version = #{expectedVersion}
+  </update>
+</mapper>
