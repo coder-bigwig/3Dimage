@@ -1,5 +1,7 @@
 .superpowers/
 viewer-check.png
+.chrome-viewer-check/
+.edge-viewer-check/
 
 # Frontend
 front/node_modules/
@@ -26,4 +28,3 @@ logs/
 *.log
 *.pem
 *.key
-
