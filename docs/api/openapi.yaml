@@ -19,8 +19,71 @@ paths:
       responses:
         '200':
           description: Viewer manifest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewerManifest'
         '404':
           description: Unknown share
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
         '410':
           description: Expired or revoked share
-
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+components:
+  schemas:
+    ViewerManifest:
+      type: object
+      required: [resultId, title, unit, coordinateSystem, manifestVersion, permissions, layers]
+      properties:
+        resultId: { type: string, format: uuid }
+        title: { type: string }
+        unit: { type: string, enum: [mm] }
+        coordinateSystem: { type: string, enum: [LPS, RAS] }
+        manifestVersion: { type: integer, minimum: 1 }
+        permissions: { $ref: '#/components/schemas/ViewerPermissions' }
+        layers:
+          type: array
+          items: { $ref: '#/components/schemas/ModelLayer' }
+    ViewerPermissions:
+      type: object
+      required: [view, measure, annotate, savePlan, download]
+      properties:
+        view: { type: boolean }
+        measure: { type: boolean }
+        annotate: { type: boolean }
+        savePlan: { type: boolean }
+        download: { type: boolean }
+    ModelLayer:
+      type: object
+      required: [id, code, name, color, opacity, visible, sortOrder, assets]
+      properties:
+        id: { type: string, format: uuid }
+        parentId: { type: [string, 'null'], format: uuid }
+        code: { type: string }
+        name: { type: string }
+        color: { type: string, pattern: '^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$' }
+        opacity: { type: number, minimum: 0, maximum: 1 }
+        visible: { type: boolean }
+        volumeMl: { type: [number, 'null'], minimum: 0 }
+        sortOrder: { type: integer }
+        assets: { $ref: '#/components/schemas/AssetVariants' }
+    AssetVariants:
+      type: object
+      additionalProperties: false
+      properties:
+        low: { type: string, format: uri }
+        medium: { type: string, format: uri }
+        high: { type: string, format: uri }
+        canonical: { type: string, format: uri }
+    ApiError:
+      type: object
+      required: [code, message, requestId]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        requestId: { type: string }
+        details: { type: object, additionalProperties: true }
