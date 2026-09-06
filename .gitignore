@@ -1,0 +1,29 @@
+.superpowers/
+viewer-check.png
+
+# Frontend
+front/node_modules/
+front/dist/
+front/coverage/
+front/.env*
+!front/.env.example
+
+# Backend
+backend/target/
+backend/.env*
+!backend/.env.example
+
+# IDE and OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Runtime data and secrets
+data/
+logs/
+*.log
+*.pem
+*.key
+
