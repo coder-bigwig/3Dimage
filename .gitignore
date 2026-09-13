@@ -7,11 +7,17 @@ viewer-check.png
 # Frontend
 front/node_modules/
 front/dist/
+front/dist.stale/
+front/dist-blender-integration/
 front/coverage/
 front/test-results/
 front/playwright-report/
 front/.env*
 !front/.env.example
+
+# Local reference comparison artifacts (may contain patient data)
+front/reference-strip-*.png
+front/reference-ct-*.png
 
 # Backend
 backend/target/
@@ -32,6 +38,8 @@ Thumbs.db
 # Runtime data and secrets
 data/
 logs/
+/public-data/
+front/public/public-data/
 *.log
 *.pem
 *.key

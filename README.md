@@ -41,6 +41,15 @@ docker compose --env-file deploy/compose/.env.example -f deploy/compose/docker-c
 
 After all services become healthy, open `http://localhost:8088/share/demo-valid-token-00000000000000000000`. The expired-state fixture is `http://localhost:8088/share/demo-expired-token-000000000000000000`.
 
+For a private external viewer used as a visual and interaction reference, set
+`VITE_REFERENCE_VIEWER_URL` in an uncommitted local env file and open
+`http://localhost:5173/reference`. Do not commit the URL when it contains a
+share token or patient-specific access information.
+
+Public CT datasets converted to the standard GLB layer manifest can be opened
+at `http://localhost:5173/public-data`. See `docs/public-datasets.md` for the
+MSD Task06 Lung import workflow. Generated imaging data stays ignored by Git.
+
 ## Security
 
 Never commit patient data, share tokens, database passwords, object-storage credentials, private keys, or signed object URLs. Demo data must be synthetic and non-identifying.

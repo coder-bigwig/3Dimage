@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:18.1-alpine
+    ports: ["5432:5432"]
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-medical3d}
       POSTGRES_USER: ${POSTGRES_USER:-medical3d}
@@ -23,19 +24,10 @@ services:
   minio-init:
     image: minio/mc:RELEASE.2025-08-13T08-35-41Z
     depends_on: { minio: { condition: service_healthy } }
-    entrypoint:
-      - /bin/sh
-      - -c
-      - >-
-        set -eu;
-        mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
-        mc mb --ignore-existing local/$${MINIO_BUCKET};
-        for layer in rs1 rs2 rs3 rs4 rs5; do
-          for variant in low medium high; do
-            printf '%s' 'Z2xURgIAAAAwAgAA6AEAAEpTT057ImFzc2V0Ijp7InZlcnNpb24iOiIyLjAifSwic2NlbmUiOjAsInNjZW5lcyI6W3sibm9kZXMiOlswXX1dLCJub2RlcyI6W3sibWVzaCI6MH1dLCJtZXNoZXMiOlt7InByaW1pdGl2ZXMiOlt7ImF0dHJpYnV0ZXMiOnsiUE9TSVRJT04iOjB9LCJpbmRpY2VzIjoxfV19XSwiYnVmZmVycyI6W3siYnl0ZUxlbmd0aCI6NDR9XSwiYnVmZmVyVmlld3MiOlt7ImJ1ZmZlciI6MCwiYnl0ZU9mZnNldCI6MCwiYnl0ZUxlbmd0aCI6MzYsInRhcmdldCI6MzQ5NjJ9LHsiYnVmZmVyIjowLCJieXRlT2Zmc2V0IjozNiwiYnl0ZUxlbmd0aCI6NiwidGFyZ2V0IjozNDk2M31dLCJhY2Nlc3NvcnMiOlt7ImJ1ZmZlclZpZXciOjAsImNvbXBvbmVudFR5cGUiOjUxMjYsImNvdW50IjozLCJ0eXBlIjoiVkVDMyIsIm1pbiI6WzAsMCwwXSwibWF4IjpbMSwxLDBdfSx7ImJ1ZmZlclZpZXciOjEsImNvbXBvbmVudFR5cGUiOjUxMjMsImNvdW50IjozLCJ0eXBlIjoiU0NBTEFSIn1dfSAgICwAAABCSU5cAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAAABAAIAAAA=' |
-              base64 -d | mc pipe local/$${MINIO_BUCKET}/demo/demo-lung/$${layer}/$${variant}.glb;
-          done;
-        done
+    entrypoint: ["/bin/sh", "/seed-demo-minio.sh"]
+    volumes:
+      - ../../scripts/public-data/seed-demo-minio.sh:/seed-demo-minio.sh:ro
+      - ../../front/public/public-data/msd-lung/lung_001:/seed:ro
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
@@ -50,15 +42,15 @@ services:
       CORS_ALLOWED_ORIGINS: http://localhost:8088,http://localhost:5173
       STORAGE_PROVIDER: minio
       STORAGE_ENDPOINT: http://minio:9000
-      STORAGE_PUBLIC_ENDPOINT: http://localhost:8088/storage
+      STORAGE_PUBLIC_ENDPOINT: /storage
       STORAGE_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
       STORAGE_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
       STORAGE_BUCKET: ${MINIO_BUCKET:-medical3d}
     depends_on: { postgres: { condition: service_healthy }, redis: { condition: service_healthy }, minio-init: { condition: service_completed_successfully } }
     healthcheck: { test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"], interval: 8s, timeout: 4s, retries: 30, start_period: 30s }
   front:
-    build: { context: ../.., dockerfile: deploy/docker/front.Dockerfile }
+    build: { context: ../.., dockerfile: deploy/docker/front.Dockerfile, args: { ENABLE_BLENDER_DEMO: "true" } }
     ports: ["8088:80"]
     depends_on: { backend: { condition: service_healthy } }
-    healthcheck: { test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"] , interval: 5s, timeout: 3s, retries: 20 }
+    healthcheck: { test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"], interval: 5s, timeout: 3s, retries: 20 }
 volumes: { postgres-data: {}, redis-data: {}, minio-data: {} }

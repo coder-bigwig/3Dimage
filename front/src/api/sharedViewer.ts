@@ -19,7 +19,13 @@ export interface ManifestLayer {
   assets: Partial<Record<'low' | 'medium' | 'high' | 'canonical', string>>
 }
 
+export interface ViewerVolumeSource {
+  /** URL of the ct-volume.json descriptor; the int16 payload sits beside it. */
+  descriptorUrl: string
+}
+
 export interface ViewerManifest {
+  renderStyle?: 'clinical'
   resultId: string
   title: string
   unit: 'mm'
@@ -27,6 +33,8 @@ export interface ViewerManifest {
   manifestVersion: number
   permissions: ViewerPermissions
   layers: ManifestLayer[]
+  /** Present when the case ships a 2D CT volume; absent for model-only results. */
+  volume?: ViewerVolumeSource | null
 }
 
 interface ApiErrorBody {

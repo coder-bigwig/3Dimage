@@ -38,6 +38,7 @@ export class LayerManager {
         if (material && typeof material === 'object' && 'opacity' in material) {
           material.opacity = opacity
           material.transparent = opacity < 1
+          if ('depthWrite' in material) material.depthWrite = opacity >= 1
           material.needsUpdate = true
         }
       }

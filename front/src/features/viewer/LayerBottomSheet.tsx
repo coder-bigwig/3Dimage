@@ -1,5 +1,6 @@
 import type { ManifestLayer } from '../../api/sharedViewer'
-export function LayerBottomSheet({ open, layers, onClose }: { open: boolean; layers: ManifestLayer[]; onClose(): void }) {
+import { ViewerIcon } from './ViewerIcon'
+export function LayerBottomSheet({ open, layers, hidden, onToggle, onClose }: { open: boolean; layers: ManifestLayer[]; hidden: Set<string>; onToggle(id: string): void; onClose(): void }) {
   if (!open) return null
-  return <section className="bottom-sheet" aria-label="全部分层"><header><h2>模型分层</h2><button onClick={onClose}>关闭</button></header>{layers.map(layer => <p key={layer.id}><span style={{ background: layer.color }} />{layer.name}</p>)}</section>
+  return <section className="bottom-sheet" aria-label="全部分层"><header><div><span className="panel-kicker">模型控制</span><h2>全部分层</h2></div><button className="panel-close" aria-label="关闭全部分层" onClick={onClose}><ViewerIcon name="close" size={22} /></button></header><div className="layer-sheet-list">{layers.map(layer => <div className={`layer-sheet-row${hidden.has(layer.id) ? ' is-hidden' : ''}`} key={layer.id}><span className="layer-sheet-swatch" style={{ background: layer.color }} /><div className="layer-sheet-copy"><strong>{layer.name}</strong><small>{layer.volumeMl == null ? '暂无体积数据' : `${layer.volumeMl.toFixed(2)} ml`}</small></div><button className="layer-sheet-eye" aria-label={`${hidden.has(layer.id) ? '显示' : '隐藏'} ${layer.name}`} onClick={() => onToggle(layer.id)}><ViewerIcon name={hidden.has(layer.id) ? 'eye-off' : 'eye'} size={22} /></button></div>)}</div></section>
 }

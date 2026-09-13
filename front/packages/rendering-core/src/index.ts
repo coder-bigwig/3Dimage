@@ -1,4 +1,5 @@
 export { ViewerEngine } from './ViewerEngine'
 export { LayerManager } from './layers/LayerManager'
 export { ResourceDisposer } from './resources/ResourceDisposer'
+export { createProceduralLungModel } from './fallback/ProceduralLungModel'
 export type * from './types'

@@ -1,42 +1,55 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ViewerManifest } from '../../api/sharedViewer'
 import { ViewerEngine } from '../../../packages/rendering-core/src/ViewerEngine'
+import type { ViewerTool } from './viewer.store'
 
-export interface ViewerCanvasHandle { reset(): void; setAutoRotate(value: boolean): void; setBackground(color: string): void; setVisible(id: string, value: boolean): void }
+export interface ViewerCanvasHandle { reset(): void; setAutoRotate(value: boolean): void; setBackground(color: string): void; setVisible(id: string, value: boolean): void; activateTool(tool: ViewerTool | null): void; restoreLayerPositions(): void; toolCommand(command: string): void }
 
-export function ViewerCanvas({ manifest, engineRef }: { manifest: ViewerManifest; engineRef: React.MutableRefObject<ViewerCanvasHandle | null> }) {
+export function ViewerCanvas({ manifest, engineRef, hidden = new Set<string>() }: { manifest: ViewerManifest; engineRef: React.MutableRefObject<ViewerCanvasHandle | null>; hidden?: Set<string> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const hasAssets = manifest.layers.some(layer => Object.keys(layer.assets).length)
-  const [failedManifestId, setFailedManifestId] = useState<string | null>(null)
-  const modelFailed = hasAssets && failedManifestId === manifest.resultId
+  const [initializationFailed, setInitializationFailed] = useState(false)
+  const hiddenRef = useRef(hidden)
+  useEffect(() => { hiddenRef.current = hidden }, [hidden])
 
   useEffect(() => {
-    if (!canvasRef.current || !hasAssets) return
+    const engine = engineRef.current
+    if (!engine) return
+    for (const layer of manifest.layers) {
+      try { engine.setVisible(layer.id, !hidden.has(layer.id)) } catch { /* resource is not registered yet */ }
+    }
+  }, [engineRef, hidden, manifest.layers])
+
+  useEffect(() => {
+    if (!canvasRef.current) return
+    setInitializationFailed(false)
     let disposed = false
     let engine: ViewerEngine
     try {
       engine = new ViewerEngine(canvasRef.current)
       engineRef.current = engine
-      void engine.load({ unit: manifest.unit, layers: manifest.layers.map(layer => ({
+      void engine.load({ renderStyle: manifest.renderStyle, unit: manifest.unit, coordinateSystem: manifest.coordinateSystem, layers: manifest.layers.map(layer => ({
         id: layer.id, name: layer.name, color: layer.color, opacity: layer.opacity,
         visible: layer.visible, assets: layer.assets,
       })) }).then(() => {
-        if (!disposed && engine.layerSnapshots().every(snapshot => snapshot.loadState !== 'ready')) setFailedManifestId(manifest.resultId)
-      }).catch(() => { if (!disposed) setFailedManifestId(manifest.resultId) })
+        for (const layer of manifest.layers) {
+          try { engine.setVisible(layer.id, !hiddenRef.current.has(layer.id)) } catch { /* failed resources remain unavailable */ }
+        }
+        if (!disposed && manifest.layers.length > 0 && !engine.layerSnapshots().some(layer => layer.loadState === 'ready')) {
+          setInitializationFailed(true)
+        }
+      }).catch(() => { if (!disposed) setInitializationFailed(true) })
     } catch {
-      queueMicrotask(() => { if (!disposed) setFailedManifestId(manifest.resultId) })
+      queueMicrotask(() => { if (!disposed) setInitializationFailed(true) })
       return () => { disposed = true }
     }
     return () => { disposed = true; engineRef.current = null; engine.dispose() }
-  }, [engineRef, hasAssets, manifest])
+  }, [engineRef, manifest])
 
   return <div className="viewer-canvas-wrap">
-    <canvas ref={canvasRef} className="viewer-canvas" aria-label="三维模型画布" data-testid="viewer-canvas" data-load-state={modelFailed ? 'error' : 'ready'} />
-    {(!hasAssets || modelFailed) && <div className="anatomy-demo" aria-label="三维肺部演示模型">
-      <i className="trachea" /><i className="lung lung--left" /><i className="lung lung--right" />
-      <i className="lobe lobe--one" /><i className="lobe lobe--two" /><i className="lobe lobe--three" />
-      <span className="measure-label">103.934mm</span>
-      <span className="measure-line" />
+    <canvas ref={canvasRef} className="viewer-canvas" aria-label="三维模型画布" data-testid="viewer-canvas" data-load-state={initializationFailed ? 'error' : 'ready'} />
+    {initializationFailed && <div className="viewer-canvas-error" role="alert">
+      <strong>模型资源未加载</strong>
+      <span>请先生成或配置可访问的 GLB 模型文件。</span>
     </div>}
   </div>
 }

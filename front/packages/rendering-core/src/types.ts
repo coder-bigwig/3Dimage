@@ -11,7 +11,9 @@ export interface RenderLayerManifest {
 }
 
 export interface RenderManifest {
+  renderStyle?: 'clinical'
   unit: 'mm'
+  coordinateSystem?: 'LPS' | 'RAS'
   layers: RenderLayerManifest[]
 }
 

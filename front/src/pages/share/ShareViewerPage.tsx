@@ -45,5 +45,5 @@ export function ShareViewerPage() {
     return <ShareErrorState error={error} onRetry={() => void manifestQuery.refetch()} />
   }
 
-  return <ViewerShell manifest={manifestQuery.data} />
+  return <ViewerShell key={manifestQuery.data.resultId} manifest={manifestQuery.data} />
 }

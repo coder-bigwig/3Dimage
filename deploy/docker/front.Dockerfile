@@ -7,6 +7,8 @@ COPY front/package.json front/pnpm-lock.yaml front/pnpm-workspace.yaml front/.np
 RUN pnpm config set dangerouslyAllowAllBuilds true && pnpm install --frozen-lockfile
 COPY front/ ./
 ENV VITE_API_BASE_URL=/api/v1
+ARG ENABLE_BLENDER_DEMO=false
+ENV VITE_ENABLE_BLENDER_DEMO=$ENABLE_BLENDER_DEMO
 RUN pnpm build
 
 FROM nginx:1.29-alpine

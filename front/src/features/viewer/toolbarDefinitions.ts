@@ -4,17 +4,17 @@ export interface ToolbarAction {
   id: string
   label: string
   tool?: ViewerTool
-  command?: 'new' | 'undo' | 'clear' | 'close' | 'plan' | 'reset' | 'screenshot'
+  command?: 'new' | 'undo' | 'clear' | 'close' | 'plan' | 'reset' | 'view' | 'screenshot'
 }
 
 export const toolbarDefinitions: Readonly<Record<ViewerMode, readonly ToolbarAction[]>> = {
   browse: [
+    { id: 'reset', label: '重置', command: 'reset' },
+    { id: 'segment', label: '分段', tool: 'moveLayer' },
     { id: 'plan', label: '方案', command: 'plan' },
-    { id: 'reset', label: '复位', command: 'reset' },
-    { id: 'move', label: '移动', tool: 'moveLayer' },
-    { id: 'measure', label: '测量', tool: 'length' },
     { id: 'annotation', label: '标注', tool: 'annotation' },
-    { id: 'clip', label: '剖切', tool: 'clipPlane' },
+    { id: 'measure', label: '测量', tool: 'length' },
+    { id: 'view', label: '视图', command: 'view' },
   ],
   measure: [
     { id: 'new', label: '新建', command: 'new' }, { id: 'undo', label: '撤销', command: 'undo' },
