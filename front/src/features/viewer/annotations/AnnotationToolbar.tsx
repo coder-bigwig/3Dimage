@@ -23,7 +23,7 @@ export function AnnotationToolbar({ mode, color, kind, text, selected, ready, on
       {mode === '2d' ? <>
         <div className="annotation-palette">{panel === 'colors' ? colors.map(value => <button key={value} aria-label={`颜色 ${value}`} aria-pressed={value === color} style={{ background: value }} onClick={() => onColor(value)} />) : tools.map(([value, label, icon]) => <button key={value} aria-label={label} aria-pressed={value === kind} onClick={() => onKind(value)}>{icon}</button>)}</div>
         <button aria-label="调色" aria-pressed={panel === 'colors'} onClick={() => { setPanel('colors'); setColorPickerOpen(true) }}><Icon name="palette" /><small>调色</small></button>
-        <button type="button" className="annotation-custom-color" title="自定义颜色" aria-label="自定义颜色" style={{ background: color }} onClick={() => setColorPickerOpen(true)} />
+        <div className="annotation-custom-color" role="img" title="当前颜色" aria-label="当前颜色" style={{ background: color }} />
         <button aria-label="工具" aria-pressed={panel === 'tools'} onClick={() => setPanel('tools')}><Icon name="tools" /><small>工具</small></button>
         <button aria-label="撤销" disabled={!ready} onClick={onUndo}><Icon name="undo" /><small>撤销</small></button>
         <button aria-label="发送" disabled title="发送功能暂未开放"><Icon name="send" /><small>发送</small></button>

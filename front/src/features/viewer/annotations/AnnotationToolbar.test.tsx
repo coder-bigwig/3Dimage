@@ -32,6 +32,14 @@ describe('AnnotationToolbar color controls', () => {
     expect(screen.getByRole('dialog', { name: '自定义颜色' })).toBeInTheDocument()
   })
 
+  test('keeps the current color swatch as a non-interactive preview', () => {
+    renderToolbar()
+
+    fireEvent.click(screen.getByRole('img', { name: '当前颜色' }))
+
+    expect(screen.queryByRole('dialog', { name: '自定义颜色' })).not.toBeInTheDocument()
+  })
+
   test('keeps fixed palette colors immediately actionable', () => {
     const onColor = renderToolbar()
 
@@ -43,7 +51,7 @@ describe('AnnotationToolbar color controls', () => {
   test('commits a custom color through onColor', () => {
     const onColor = renderToolbar()
 
-    fireEvent.click(screen.getByRole('button', { name: '自定义颜色' }))
+    fireEvent.click(screen.getByRole('button', { name: '调色' }))
     fireEvent.change(screen.getByLabelText('HEX'), { target: { value: '00ff80' } })
     fireEvent.click(screen.getByRole('button', { name: '确定' }))
 
@@ -55,7 +63,7 @@ describe('AnnotationToolbar color controls', () => {
   test('canceling a custom color leaves the parent callback untouched', () => {
     const onColor = renderToolbar()
 
-    fireEvent.click(screen.getByRole('button', { name: '自定义颜色' }))
+    fireEvent.click(screen.getByRole('button', { name: '调色' }))
     fireEvent.change(screen.getByLabelText('HEX'), { target: { value: '00ff80' } })
     fireEvent.click(screen.getByRole('button', { name: '取消' }))
 
