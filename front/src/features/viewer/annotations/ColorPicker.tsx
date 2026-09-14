@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent, type MouseEvent, type ReactElement } from 'react'
+import { useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type ReactElement } from 'react'
 import { hexToRgb, hsvToRgb, normalizeHex, rgbToHex, rgbToHsv, type Hsv, type Rgb } from './colorUtils'
 
 const DEFAULT_COLOR = '#ff0000'
@@ -140,7 +140,7 @@ export function ColorPicker({
         aria-valuemax={100}
         aria-valuenow={Math.round(hsv.s * 100)}
         tabIndex={0}
-        style={{ backgroundColor: `hsl(${hsv.h} 100% 50%)` }}
+        style={{ backgroundColor: `hsl(${hsv.h} 100% 50%)`, '--color-saturation': hsv.s, '--color-value': hsv.v } as CSSProperties}
         onClick={handleSurfaceClick}
         onKeyDown={handleSurfaceKeyDown}
       />
