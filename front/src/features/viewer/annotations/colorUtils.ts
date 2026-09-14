@@ -61,16 +61,17 @@ export function hsvToRgb(value: Hsv): Rgb {
   const c = v * s
   const x = c * (1 - Math.abs((h / 60) % 2 - 1))
   const m = v - c
-  let red = 0
-  let green = 0
-  let blue = 0
-
-  if (h < 60) [red, green, blue] = [c, x, 0]
-  else if (h < 120) [red, green, blue] = [x, c, 0]
-  else if (h < 180) [red, green, blue] = [0, c, x]
-  else if (h < 240) [red, green, blue] = [0, x, c]
-  else if (h < 300) [red, green, blue] = [x, 0, c]
-  else [red, green, blue] = [c, 0, x]
+  const [red, green, blue] = h < 60
+    ? [c, x, 0]
+    : h < 120
+      ? [x, c, 0]
+      : h < 180
+        ? [0, c, x]
+        : h < 240
+          ? [0, x, c]
+          : h < 300
+            ? [x, 0, c]
+            : [c, 0, x]
 
   return {
     r: clampChannel((red + m) * 255),
