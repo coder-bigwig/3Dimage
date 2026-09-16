@@ -11,9 +11,25 @@ export type ViewerView = typeof viewerViews[number]
 export function ContextToolbar({ mode, activeTool, onAction, viewMenuOpen = false, activeView = '三维', onSelectView, canSavePlan = true, canAnnotate = true, onAnnotate }: { mode: ViewerMode; activeTool: ViewerTool | null; onAction(action: ToolbarAction): void; viewMenuOpen?: boolean; activeView?: ViewerView; onSelectView?(view: ViewerView): void; canSavePlan?: boolean; canAnnotate?: boolean; onAnnotate?(mode: '2d' | '3d'): void }) {
   const [annotationMenu, setAnnotationMenu] = useState(false)
   const [annotationPosition, setAnnotationPosition] = useState({ top: 0, left: 0 })
+  const [toolbarHint, setToolbarHint] = useState<{ text: string; top: number; left: number } | null>(null)
+  const toolbarHintTimer = useRef<number | undefined>(undefined)
   const viewButtonRef = useRef<HTMLButtonElement>(null)
   const toolbarRef = useRef<HTMLElement>(null)
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null)
+  const showToolbarHint = (button: HTMLButtonElement, text: string) => {
+    if (toolbarHintTimer.current !== undefined) window.clearTimeout(toolbarHintTimer.current)
+    toolbarHintTimer.current = window.setTimeout(() => {
+      const rect = button.getBoundingClientRect()
+      setToolbarHint({ text, top: rect.bottom + 8, left: rect.left + rect.width / 2 })
+      toolbarHintTimer.current = undefined
+    }, 300)
+  }
+  const hideToolbarHint = () => {
+    if (toolbarHintTimer.current !== undefined) window.clearTimeout(toolbarHintTimer.current)
+    toolbarHintTimer.current = undefined
+    setToolbarHint(null)
+  }
+  useEffect(() => () => { if (toolbarHintTimer.current !== undefined) window.clearTimeout(toolbarHintTimer.current) }, [])
   useEffect(() => {
     if (!annotationMenu) return
     const close = (event: PointerEvent) => { if (!toolbarRef.current?.contains(event.target as Node)) setAnnotationMenu(false) }
@@ -41,23 +57,27 @@ export function ContextToolbar({ mode, activeTool, onAction, viewMenuOpen = fals
     return () => { document.removeEventListener('pointerdown', onPointerDown); document.removeEventListener('keydown', onKeyDown) }
   }, [activeView, onSelectView, viewMenuOpen])
 
-  return <nav ref={toolbarRef} className="context-toolbar" aria-label="查看器工具">
-    {toolbarDefinitions[mode].map(action => <span className="context-toolbar__item" key={action.id}>
-      <button ref={action.command === 'view' ? viewButtonRef : undefined} disabled={(action.command === 'plan' && !canSavePlan) || (action.tool === 'annotation' && !canAnnotate)} className={`${activeTool === action.tool || (action.command === 'view' && viewMenuOpen) ? 'is-active' : ''}`} aria-label={action.command === 'view' && activeView !== '三维' ? `视图：${activeView}` : action.label} aria-expanded={action.tool === 'annotation' ? annotationMenu : action.command === 'view' ? viewMenuOpen : undefined} onClick={event => {
-        if (action.tool === 'annotation' && onAnnotate) {
-          const rect = event.currentTarget.getBoundingClientRect()
-          setAnnotationPosition({ top: rect.bottom, left: Math.min(rect.left, window.innerWidth - 130) }); setAnnotationMenu(value => !value)
-        } else { setAnnotationMenu(false); onAction(action) }
-      }}>
+  return <>
+    <nav ref={toolbarRef} className="context-toolbar" aria-label="查看器工具">
+      {toolbarDefinitions[mode].map(action => <span className="context-toolbar__item" key={action.id}>
+        <button ref={action.command === 'view' ? viewButtonRef : undefined} disabled={(action.command === 'plan' && !canSavePlan) || (action.tool === 'annotation' && !canAnnotate)} className={`${activeTool === action.tool || (action.command === 'view' && viewMenuOpen) ? 'is-active' : ''}`} aria-label={action.command === 'view' && activeView !== '三维' ? `视图：${activeView}` : action.label} aria-describedby={action.hint ? 'viewer-toolbar-tooltip' : undefined} aria-expanded={action.tool === 'annotation' ? annotationMenu : action.command === 'view' ? viewMenuOpen : undefined} onPointerEnter={event => { if (action.hint && event.pointerType === 'mouse') showToolbarHint(event.currentTarget, action.hint) }} onPointerLeave={hideToolbarHint} onFocus={event => { if (action.hint) showToolbarHint(event.currentTarget, action.hint) }} onBlur={hideToolbarHint} onClick={event => {
+          hideToolbarHint()
+          if (action.tool === 'annotation' && onAnnotate) {
+            const rect = event.currentTarget.getBoundingClientRect()
+            setAnnotationPosition({ top: rect.bottom, left: Math.min(rect.left, window.innerWidth - 130) }); setAnnotationMenu(value => !value)
+          } else { setAnnotationMenu(false); onAction(action) }
+        }}>
       <ViewerIcon name={(toolbarIconNames.has(action.id as ViewerIconName) ? action.id : 'view') as ViewerIconName} size={24} /><small>{action.label}</small>
-      </button>
-      {action.tool === 'annotation' && annotationMenu && <div className="viewer-menu annotation-menu" role="menu" aria-label="标注模式" style={annotationPosition}>
-        <button role="menuitem" onClick={() => { setAnnotationMenu(false); onAnnotate?.('2d') }}>二维标注</button>
-        <button role="menuitem" onClick={() => { setAnnotationMenu(false); onAnnotate?.('3d') }}>三维标注</button>
-      </div>}
-      {action.command === 'view' && viewMenuOpen && <div className="viewer-menu" style={menuPosition ? { top: menuPosition.top, left: menuPosition.left } : undefined} role="menu" aria-label="视图模式">
-        {viewerViews.map(view => <button type="button" role="menuitem" aria-pressed={view === activeView} className={view === activeView ? 'is-selected' : ''} key={view} onClick={() => onSelectView?.(view)}>{view}</button>)}
-      </div>}
-    </span>)}
-  </nav>
+        </button>
+        {action.tool === 'annotation' && annotationMenu && <div className="viewer-menu annotation-menu" role="menu" aria-label="标注模式" style={annotationPosition}>
+          <button role="menuitem" onClick={() => { setAnnotationMenu(false); onAnnotate?.('2d') }}>二维标注</button>
+          <button role="menuitem" onClick={() => { setAnnotationMenu(false); onAnnotate?.('3d') }}>三维标注</button>
+        </div>}
+        {action.command === 'view' && viewMenuOpen && <div className="viewer-menu" style={menuPosition ? { top: menuPosition.top, left: menuPosition.left } : undefined} role="menu" aria-label="视图模式">
+          {viewerViews.map(view => <button type="button" role="menuitem" aria-pressed={view === activeView} className={view === activeView ? 'is-selected' : ''} key={view} onClick={() => onSelectView?.(view)}>{view}</button>)}
+        </div>}
+      </span>)}
+    </nav>
+    {toolbarHint && <div id="viewer-toolbar-tooltip" className="context-toolbar__tooltip" role="tooltip" style={{ top: toolbarHint.top, left: toolbarHint.left }}>{toolbarHint.text}</div>}
+  </>
 }

@@ -149,6 +149,7 @@ button { min-width: 44px; min-height: 44px; font: inherit; }
 .context-toolbar > .context-toolbar__item > button.is-active { color: #1585ff; border-color: #1585ff; background: #fff; box-shadow: none; }
 .context-toolbar > .context-toolbar__item > button span { font-size: 27px; }
 .context-toolbar > .context-toolbar__item > button small { font-size: 12px; }
+.context-toolbar__tooltip { position: fixed; z-index: 40; max-width: min(280px, calc(100vw - 24px)); padding: 8px 11px; border-radius: 5px; color: #fff; background: rgb(32 35 38 / 94%); box-shadow: 0 3px 10px rgb(0 0 0 / 22%); font-size: 13px; line-height: 1.45; text-align: left; pointer-events: none; transform: translateX(-50%); }
 .viewer-menu { position: fixed; z-index: 30; min-width: 210px; padding: 0; background: #f9f9f9; border-radius: 0 0 7px 7px; box-shadow: 0 4px 12px rgb(0 0 0 / 25%); overflow: hidden; }
 .viewer-menu button { white-space: nowrap; display: block; width: 100%; height: 49px; min-width: 0; min-height: 0; padding: 0 24px; border: 0; border-radius: 0; background: transparent; color: #1f1f1f; font-size: 18px; text-align: left; }
 .viewer-menu button.is-selected { color: #fff; background: #16b6ff; }
@@ -373,6 +374,7 @@ button { min-width: 44px; min-height: 44px; font: inherit; }
 
 .orientation-widget { position: absolute; z-index: 2; top: 12px; left: 9%; width: 47px; height: 88px; pointer-events: none; }
 .orientation-widget canvas { display: block; width: 100%; height: 100%; }
+.measurement-help { position: absolute; z-index: 4; top: 12px; left: 50%; max-width: min(360px, calc(100% - 32px)); padding: 8px 14px; border: 1px solid rgb(255 255 255 / 60%); border-radius: 6px; color: #fff; background: rgb(32 35 38 / 82%); box-shadow: 0 2px 8px rgb(0 0 0 / 18%); font-size: 14px; line-height: 1.4; text-align: center; pointer-events: none; transform: translateX(-50%); }
 @media (max-width: 600px) { .orientation-widget { left: 7%; width: 48px; height: 90px; } }
 
 /* Final viewer chrome polish. Keep menu controls independent from toolbar sizing. */

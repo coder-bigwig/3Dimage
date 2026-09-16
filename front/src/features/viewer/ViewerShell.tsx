@@ -47,6 +47,8 @@ export function ViewerShell({ manifest, shareToken }: { manifest: ViewerManifest
   const drawingHistory = useRef<Drawing[][]>([]), shellRef = useRef<HTMLElement>(null), modelReady = useRef(false)
   const [mode, setMode] = useState<ViewerMode>('browse')
   const [activeTool, setActiveTool] = useState<ViewerTool | null>(null)
+  const [areaHintVisible, setAreaHintVisible] = useState(false)
+  const areaHintTimer = useRef<number | undefined>(undefined)
   const [hidden, setHidden] = useState(new Set(manifest.layers.filter(layer => !layer.visible).map(layer => layer.id)))
   const [rotating, setRotating] = useState(false)
   const [darkBackground, setDarkBackground] = useState(false)
@@ -57,6 +59,20 @@ export function ViewerShell({ manifest, shareToken }: { manifest: ViewerManifest
   const [activeView, setActiveView] = useState<ViewerView>('三维')
   const [viewMenuOpen, setViewMenuOpen] = useState(false)
   const engineRef = useRef<ViewerCanvasHandle | null>(null)
+  const hideAreaHint = () => {
+    if (areaHintTimer.current !== undefined) window.clearTimeout(areaHintTimer.current)
+    areaHintTimer.current = undefined
+    setAreaHintVisible(false)
+  }
+  const showAreaHint = () => {
+    if (areaHintTimer.current !== undefined) window.clearTimeout(areaHintTimer.current)
+    setAreaHintVisible(true)
+    areaHintTimer.current = window.setTimeout(() => {
+      areaHintTimer.current = undefined
+      setAreaHintVisible(false)
+    }, 5000)
+  }
+  useEffect(() => () => { if (areaHintTimer.current !== undefined) window.clearTimeout(areaHintTimer.current) }, [])
   useEffect(() => {
     const shell = shellRef.current
     const ready = () => {
@@ -120,7 +136,7 @@ export function ViewerShell({ manifest, shareToken }: { manifest: ViewerManifest
   }
   const action = (item: ToolbarAction) => {
     if (item.command === 'plan') return setPlanOpen(true)
-    if (item.command === 'close') { engineRef.current?.activateTool(null); setMode('browse'); setActiveTool(null); return }
+    if (item.command === 'close') { hideAreaHint(); engineRef.current?.activateTool(null); setMode('browse'); setActiveTool(null); return }
     if (item.command === 'undo' && activeTool === 'moveLayer') { engineRef.current?.toolCommand('undo'); return }
     if (item.command === 'new' || item.command === 'undo' || item.command === 'clear' || item.command === 'finish') { engineRef.current?.toolCommand(item.command); return }
     if (item.command === 'reset') return reset()
@@ -129,6 +145,8 @@ export function ViewerShell({ manifest, shareToken }: { manifest: ViewerManifest
       engineRef.current?.activateTool(item.tool)
       setActiveTool(item.tool)
       setMode(item.tool === 'moveLayer' ? 'moveLayer' : item.tool === 'annotation' ? 'annotate' : item.tool === 'clipPlane' ? 'clip' : 'measure')
+      if (item.tool === 'closedArea') showAreaHint()
+      else hideAreaHint()
     }
   }
   const toggleLayer = (id: string) => setHidden(current => {
@@ -180,6 +198,7 @@ export function ViewerShell({ manifest, shareToken }: { manifest: ViewerManifest
       <section className={`viewer-workspace viewer-workspace--${presentation.layout}`} aria-label="模型工作区">
         {showModel && <section className="viewer-model-panel" data-testid="viewer-model-panel">
           <div className="viewer-stage">
+            {areaHintVisible && <div className="measurement-help" role="status" aria-label="面积测量提示" aria-live="polite">请在模型表面点击至少 3 个点，然后点击“完成”</div>}
             <ViewerCanvas manifest={manifest} engineRef={engineRef} hidden={hidden} />
             {annotationMode === '2d' && <DrawingCanvas drawings={annotations.content.drawings} kind={drawingKind} color={color} enabled={annotations.ready} onAdd={drawing => {
               if (annotations.content.drawings.length >= 200 || annotations.content.drawings.reduce((sum, item) => sum + item.points.length, 0) + drawing.points.length > 20000) { setAnnotationMessage('二维标注数量已达保存上限，请先清空部分标注'); return }

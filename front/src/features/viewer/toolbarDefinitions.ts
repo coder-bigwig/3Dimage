@@ -3,6 +3,7 @@ import type { ViewerMode, ViewerTool } from './viewer.store'
 export interface ToolbarAction {
   id: string
   label: string
+  hint?: string
   tool?: ViewerTool
   command?: 'new' | 'undo' | 'clear' | 'finish' | 'close' | 'plan' | 'reset' | 'view' | 'screenshot'
 }
@@ -19,7 +20,7 @@ export const toolbarDefinitions: Readonly<Record<ViewerMode, readonly ToolbarAct
   measure: [
     { id: 'new', label: '新建', command: 'new' }, { id: 'undo', label: '撤销', command: 'undo' },
     { id: 'clear', label: '清空', command: 'clear' }, { id: 'angle', label: '角度', tool: 'angle' },
-    { id: 'closed', label: '面积', tool: 'closedArea' }, { id: 'finish', label: '完成', command: 'finish' },
+    { id: 'closed', label: '面积', hint: '面积测量：在模型表面点击至少 3 个点，完成后点击“完成”生成面积', tool: 'closedArea' }, { id: 'finish', label: '完成', command: 'finish' },
     { id: 'length', label: '长度', tool: 'length' }, { id: 'diameter', label: '直径', tool: 'diameter' },
     { id: 'close', label: '关闭', command: 'close' },
   ],

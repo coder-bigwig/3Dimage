@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import type { ViewerManifest } from '../../api/sharedViewer'
 import { ViewerShell } from './ViewerShell'
@@ -24,7 +24,7 @@ beforeEach(() => {
   vi.stubGlobal('cancelAnimationFrame', () => undefined)
 })
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals() })
 
 const manifest: ViewerManifest = {
   resultId: 'result-1', title: '肺部三维重建', unit: 'mm', coordinateSystem: 'LPS', manifestVersion: 1,
@@ -92,6 +92,30 @@ test('switches to the complete measurement toolbar', () => {
     expect(screen.getByRole('button', { name: label })).toBeInTheDocument()
   }
   expect(screen.queryByRole('button', { name: '方案' })).not.toBeInTheDocument()
+})
+
+test('shows area instructions only while the area button is hovered', () => {
+  vi.useFakeTimers()
+  render(<ViewerShell manifest={manifest} />)
+  fireEvent.click(screen.getByRole('button', { name: '测量' }))
+  const area = screen.getByRole('button', { name: '面积' })
+
+  expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+  fireEvent.pointerEnter(area, { pointerType: 'mouse' })
+  expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+  act(() => vi.advanceTimersByTime(300))
+  expect(screen.getByRole('tooltip')).toHaveTextContent('面积测量：在模型表面点击至少 3 个点，完成后点击“完成”生成面积')
+  fireEvent.pointerLeave(area, { pointerType: 'mouse' })
+  expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+})
+
+test('shows a live area instruction after entering area mode', () => {
+  render(<ViewerShell manifest={manifest} />)
+  fireEvent.click(screen.getByRole('button', { name: '测量' }))
+  expect(screen.queryByRole('status', { name: '面积测量提示' })).not.toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole('button', { name: '面积' }))
+  expect(screen.getByRole('status', { name: '面积测量提示' })).toHaveTextContent('请在模型表面点击至少 3 个点，然后点击“完成”')
 })
 
 test('routes measurement commands to the active engine tool', () => {
