@@ -57,8 +57,12 @@ export class SharedViewerApiError extends Error {
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api/v1'
 
+export function isValidShareToken(token: string): boolean {
+  return /^[A-Za-z0-9_-]{32,256}$/.test(token)
+}
+
 export async function getSharedViewerManifest(token: string, signal?: AbortSignal): Promise<ViewerManifest> {
-  if (!/^[A-Za-z0-9_-]{32,256}$/.test(token)) {
+  if (!isValidShareToken(token)) {
     throw new SharedViewerApiError(422, 'INVALID_SHARE_TOKEN', '分享链接格式无效')
   }
   const response = await fetch(

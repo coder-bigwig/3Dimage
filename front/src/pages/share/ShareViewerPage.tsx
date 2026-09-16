@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import {
+  isValidShareToken,
   SharedViewerApiError,
   getSharedViewerManifest,
 } from '../../api/sharedViewer'
@@ -16,7 +17,10 @@ function redactBrowserAddress() {
 
 export function ShareViewerPage({ fallbackToken = '' }: { fallbackToken?: string } = {}) {
   const { token: routeToken = '' } = useParams()
-  const token = routeToken === 'viewer' || !routeToken ? sessionStorage.getItem('active-viewer-share') ?? fallbackToken : routeToken
+  const storedToken = sessionStorage.getItem('active-viewer-share') ?? ''
+  const token = routeToken === 'viewer' || !routeToken
+    ? (isValidShareToken(storedToken) ? storedToken : fallbackToken)
+    : routeToken
   const manifestQuery = useQuery({
     queryKey: ['shared-viewer-manifest', token],
     queryFn: ({ signal }) => getSharedViewerManifest(token, signal),
