@@ -1,6 +1,7 @@
 import { Vector3 } from 'three'
 import { measureAngle } from './AngleTool'
 import { measureClosedArea } from './ClosedAreaTool'
+import { createUuid } from '../utils/createUuid'
 
 export type RecordTool = 'length' | 'diameter' | 'angle' | 'closedArea' | 'annotation'
 export interface Anchor { layerId: string; position: [number, number, number] }
@@ -20,12 +21,12 @@ export class ToolRecords {
     const label = tool === 'annotation' ? text.trim().slice(0, 200) : tool === 'angle'
       ? `${measureAngle(vectors[0], vectors[1], vectors[2]).value.toFixed(2)}°`
       : `${vectors[0].distanceTo(vectors[1]).toFixed(2)} mm`
-    this.commit({ id: crypto.randomUUID(), tool, points, label })
+    this.commit({ id: createUuid(), tool, points, label })
   }
   finishArea(resolve: (point: Anchor) => Vector3 = p => new Vector3(...p.position)) {
     if (this.pending.length < 3) throw new Error('闭合测量至少需要三个点')
     const area = measureClosedArea(this.pending.map(resolve)).value
-    this.commit({ id: crypto.randomUUID(), tool: 'closedArea', points: structuredClone(this.pending), label: `${area.toFixed(2)} mm²` })
+    this.commit({ id: createUuid(), tool: 'closedArea', points: structuredClone(this.pending), label: `${area.toFixed(2)} mm²` })
   }
   private commit(item: ToolRecord) { this.remember(); this.items.push(item); this.pending = [] }
   private remember() { this.#history.push(structuredClone(this.items)); if (this.#history.length > 100) this.#history.shift() }

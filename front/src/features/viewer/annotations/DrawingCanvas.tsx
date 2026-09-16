@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { createUuid } from '../../../../packages/rendering-core/src/utils/createUuid'
 import type { Drawing, DrawingKind, Point2 } from './types'
 
 function Shape({ drawing }: { drawing: Drawing }) {
@@ -25,7 +26,7 @@ export function DrawingCanvas({ drawings, kind, color, enabled, onAdd }: { drawi
   }
   const finishText = () => {
     if (!entry?.text.trim()) return
-    onAdd({ id: crypto.randomUUID(), kind: 'text', color, points: [entry.point], text: entry.text.trim() }); setEntry(null)
+    onAdd({ id: createUuid(), kind: 'text', color, points: [entry.point], text: entry.text.trim() }); setEntry(null)
   }
   return <div className="drawing-overlay">
     <svg aria-label="二维标注画布" viewBox="0 0 1000 1000" preserveAspectRatio="none" className="drawing-surface"
@@ -34,7 +35,7 @@ export function DrawingCanvas({ drawings, kind, color, enabled, onAdd }: { drawi
         const point = locate(event)
         if (kind === 'text') { setEntry({ point, text: '' }); return }
         pointer.current = event.pointerId; event.currentTarget.setPointerCapture(event.pointerId)
-        update({ id: crypto.randomUUID(), kind, color, points: [point, point], text: '' })
+        update({ id: createUuid(), kind, color, points: [point, point], text: '' })
       }} onPointerMove={event => {
         const current = draftRef.current
         if (!current || pointer.current !== event.pointerId) return

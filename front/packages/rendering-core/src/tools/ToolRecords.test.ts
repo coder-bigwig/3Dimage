@@ -1,7 +1,9 @@
-import { expect, test } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import { ToolRecords } from './ToolRecords'
 
 const point = (x: number, y: number, z = 0) => ({ layerId: 'lung', position: [x, y, z] as [number, number, number] })
+
+afterEach(() => { vi.unstubAllGlobals() })
 
 test('two picked model points produce a millimetre measurement and undo restores it', () => {
   const records = new ToolRecords()
@@ -20,6 +22,16 @@ test('diameter commits a two-point record with a millimetre label', () => {
   records.add('diameter', point(2, 0))
   expect(records.items).toHaveLength(1)
   expect(records.items[0]).toMatchObject({ tool: 'diameter', label: '4.00 mm' })
+})
+
+test('commits a measurement without secure-context randomUUID support', () => {
+  vi.stubGlobal('crypto', { getRandomValues: (values: Uint8Array) => values.fill(7) })
+  const records = new ToolRecords()
+
+  records.add('length', point(0, 0))
+  records.add('length', point(3, 4))
+
+  expect(records.items[0].id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
 })
 
 test('angle commits three points with a degree label', () => {
