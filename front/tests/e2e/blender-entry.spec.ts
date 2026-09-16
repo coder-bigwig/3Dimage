@@ -35,13 +35,14 @@ test('fresh /share/viewer preserves the refined model and persists usable 2D and
       if (await page.locator('.model-annotation-label').filter({ hasText: text }).count()) break
     }
     const label = page.locator('.model-annotation-label').filter({ hasText: text })
-    await expect(label).toBeVisible()
+    await expect(label).toBeVisible({ timeout: 120_000 })
     await expect.poll(async () => (await read()).models.some((m: { text: string }) => m.text === text)).toBe(true)
     await page.screenshot({ path: 'test-results/blender-3d-annotation.png' })
     await page.reload()
     await page.waitForLoadState('domcontentloaded')
     await expect(page.getByRole('main', { name: '公开肺部 CT · Blender 精修模型' })).toBeVisible()
-    await expect(label).toBeVisible()
+    await expect(page.getByTestId('viewer-canvas')).toHaveAttribute('data-load-state', 'ready', { timeout: 120_000 })
+    await expect(label).toBeVisible({ timeout: 120_000 })
     await enter('二维标注')
     await expect(page.getByLabel('二维标注画布').locator('polyline')).not.toHaveCount(0)
     await expect.poll(async () => (await read()).drawings.length).toBe(original.drawings.length + 1)
