@@ -34,3 +34,16 @@ test('shows a model resource error instead of a fake model when all layers fail'
   expect(mockedEngine.load).toHaveBeenCalledWith(expect.objectContaining({ coordinateSystem: 'LPS' }))
   expect(screen.getByTestId('viewer-canvas')).toHaveAttribute('data-load-state', 'error')
 })
+
+test('keeps the canvas loading until model resources finish', async () => {
+  let resolveLoad!: () => void
+  mockedEngine.layerSnapshots.mockReturnValue([{ loadState: 'ready' }])
+  mockedEngine.load.mockImplementationOnce(() => new Promise<undefined>(resolve => { resolveLoad = () => resolve(undefined) }))
+  const engineRef = { current: null }
+
+  render(<ViewerCanvas manifest={manifest} engineRef={engineRef} />)
+
+  expect(screen.getByTestId('viewer-canvas')).toHaveAttribute('data-load-state', 'loading')
+  resolveLoad()
+  await waitFor(() => expect(screen.getByTestId('viewer-canvas')).toHaveAttribute('data-load-state', 'ready'))
+})

@@ -5,10 +5,11 @@ import type { ViewerTool } from './viewer.store'
 import type { ToolRecord } from '../../../packages/rendering-core/src/tools/ToolRecords'
 
 export interface ViewerCanvasHandle { reset(): void; setAutoRotate(value: boolean): void; setBackground(color: string): void; setVisible(id: string, value: boolean): void; activateTool(tool: ViewerTool | null): void; restoreLayerPositions(): void; toolCommand(command: string): void; setAnnotationText(text: string): void; editAnnotation(id: string, text: string): void; restoreAnnotations(items: ToolRecord[]): void; removeRecord(id: string): void }
+export type ViewerCanvasLoadState = 'loading' | 'ready' | 'error'
 
 export function ViewerCanvas({ manifest, engineRef, hidden = new Set<string>() }: { manifest: ViewerManifest; engineRef: React.MutableRefObject<ViewerCanvasHandle | null>; hidden?: Set<string> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [initializationFailed, setInitializationFailed] = useState(false)
+  const [loadState, setLoadState] = useState<ViewerCanvasLoadState>('loading')
   const hiddenRef = useRef(hidden)
   useEffect(() => { hiddenRef.current = hidden }, [hidden])
 
@@ -22,7 +23,7 @@ export function ViewerCanvas({ manifest, engineRef, hidden = new Set<string>() }
 
   useEffect(() => {
     if (!canvasRef.current) return
-    setInitializationFailed(false)
+    setLoadState('loading')
     let disposed = false
     let engine: ViewerEngine
     try {
@@ -36,21 +37,23 @@ export function ViewerCanvas({ manifest, engineRef, hidden = new Set<string>() }
         for (const layer of manifest.layers) {
           try { engine.setVisible(layer.id, !hiddenRef.current.has(layer.id)) } catch { /* failed resources remain unavailable */ }
         }
-        if (!disposed && manifest.layers.length > 0 && !engine.layerSnapshots().some(layer => layer.loadState === 'ready')) {
-          setInitializationFailed(true)
+        const ready = manifest.layers.length === 0 || engine.layerSnapshots().some(layer => layer.loadState === 'ready')
+        if (!disposed) {
+          setLoadState(ready ? 'ready' : 'error')
+          if (ready) canvasRef.current?.dispatchEvent(new CustomEvent('viewer-ready', { bubbles: true }))
         }
-        canvasRef.current?.dispatchEvent(new CustomEvent('viewer-ready', { bubbles: true }))
-      }).catch(() => { if (!disposed) setInitializationFailed(true) })
+      }).catch(() => { if (!disposed) setLoadState('error') })
     } catch {
-      queueMicrotask(() => { if (!disposed) setInitializationFailed(true) })
+      queueMicrotask(() => { if (!disposed) setLoadState('error') })
       return () => { disposed = true }
     }
     return () => { disposed = true; engineRef.current = null; engine.dispose() }
   }, [engineRef, manifest])
 
   return <div className="viewer-canvas-wrap">
-    <canvas ref={canvasRef} className="viewer-canvas" aria-label="三维模型画布" data-testid="viewer-canvas" data-load-state={initializationFailed ? 'error' : 'ready'} />
-    {initializationFailed && <div className="viewer-canvas-error" role="alert">
+    <canvas ref={canvasRef} className="viewer-canvas" aria-label="三维模型画布" data-testid="viewer-canvas" data-load-state={loadState} />
+    {loadState === 'loading' && <div className="viewer-canvas-loading" role="status">正在加载模型…</div>}
+    {loadState === 'error' && <div className="viewer-canvas-error" role="alert">
       <strong>模型资源未加载</strong>
       <span>请先生成或配置可访问的 GLB 模型文件。</span>
     </div>}
