@@ -35,6 +35,8 @@ import java.util.UUID;
 @Service
 public class SharedViewerServiceImpl implements SharedViewerService {
     private static final Duration ASSET_URL_VALIDITY = Duration.ofMinutes(15);
+    private static final String BLENDER_DEMO_CASE_CODE = "DEMO-BLENDER-LUNG-001";
+    private static final String BLENDER_DEMO_VOLUME_DESCRIPTOR = "/public-data/blender-trial/viewer/ct-volume.json";
     private final ViewerShareMapper shareMapper;
     private final CaseResultMapper resultMapper;
     private final ModelLayerMapper layerMapper;
@@ -85,7 +87,13 @@ public class SharedViewerServiceImpl implements SharedViewerService {
         auditMapper.insert(new AuditLogEntity(UUID.randomUUID(), result.id(), share.id(), "VIEW_MANIFEST",
             null, "{}", now));
         return new ViewerManifestResponse(result.id(), result.title(), result.unit(), result.coordinateSystem(),
-            result.manifestVersion(), permissions, List.copyOf(layers));
+            result.manifestVersion(), permissions, List.copyOf(layers), result.renderStyle(), volume(result));
+    }
+
+    private ViewerManifestResponse.Volume volume(CaseResultEntity result) {
+        return BLENDER_DEMO_CASE_CODE.equals(result.caseCode())
+            ? new ViewerManifestResponse.Volume(BLENDER_DEMO_VOLUME_DESCRIPTOR)
+            : null;
     }
 
     private Map<UUID, Map<String, String>> signedAssetUrls(List<ModelAssetEntity> assets) {

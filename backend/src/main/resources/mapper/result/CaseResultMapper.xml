@@ -3,12 +3,12 @@
 <mapper namespace="com.medical3d.viewer.modules.result.mapper.CaseResultMapper">
     <insert id="insert">
         INSERT INTO case_result
-          (id, case_code, title, unit, coordinate_system, manifest_version, status, created_at, updated_at)
+          (id, case_code, title, unit, coordinate_system, manifest_version, status, created_at, updated_at, render_style)
         VALUES
-          (#{id}, #{caseCode}, #{title}, #{unit}, #{coordinateSystem}, #{manifestVersion}, #{status}, #{createdAt}, #{updatedAt})
+          (#{id}, #{caseCode}, #{title}, #{unit}, #{coordinateSystem}, #{manifestVersion}, #{status}, #{createdAt}, #{updatedAt}, #{renderStyle})
     </insert>
     <select id="findPublishedById" resultType="com.medical3d.viewer.modules.result.entity.CaseResultEntity">
-        SELECT id, case_code, title, unit, coordinate_system, manifest_version, status, created_at, updated_at
+        SELECT id, case_code, title, unit, coordinate_system, manifest_version, status, created_at, updated_at, render_style
         FROM case_result
         WHERE id = #{id} AND status = 'PUBLISHED'
     </select>

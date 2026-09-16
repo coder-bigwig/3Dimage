@@ -1,7 +1,30 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { expect, test } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import type { ViewerManifest } from '../../api/sharedViewer'
 import { ViewerShell } from './ViewerShell'
+import { ViewerEngine } from '../../../packages/rendering-core/src/ViewerEngine'
+
+vi.mock('three', async importOriginal => {
+  const actual = await importOriginal<typeof import('three')>()
+  return {
+    ...actual,
+    WebGLRenderer: class {
+      clippingPlanes = []
+      setPixelRatio() {}
+      setSize() {}
+      render() {}
+      dispose() {}
+    },
+  }
+})
+
+beforeEach(() => {
+  vi.stubGlobal('ResizeObserver', class { observe() {}; disconnect() {} })
+  vi.stubGlobal('requestAnimationFrame', () => 1)
+  vi.stubGlobal('cancelAnimationFrame', () => undefined)
+})
+
+afterEach(() => vi.unstubAllGlobals())
 
 const manifest: ViewerManifest = {
   resultId: 'result-1', title: '肺部三维重建', unit: 'mm', coordinateSystem: 'LPS', manifestVersion: 1,
@@ -18,6 +41,26 @@ const manifestWithLongLayer: ViewerManifest = {
     { ...manifest.layers[0], id: 'layer-1', name: '右上叶肺段安全边界', volumeMl: null, visible: false },
   ],
 }
+
+test('annotation menu exposes real 2D tools and keeps Send disabled', () => {
+  render(<ViewerShell manifest={manifest} />)
+  fireEvent.click(screen.getByRole('button', { name: '标注' }))
+  fireEvent.click(screen.getByRole('menuitem', { name: '二维标注' }))
+  expect(screen.getByRole('button', { name: '发送' })).toBeDisabled()
+  fireEvent.click(screen.getByRole('button', { name: '工具' }))
+  for (const name of ['画笔', '直线', '箭头', '圆', '矩形', '文字']) expect(screen.getByRole('button', { name })).toBeVisible()
+  expect(screen.getByLabelText('二维标注画布')).toBeInTheDocument()
+})
+
+test('3D annotations provide edit, delete, clear and help controls', () => {
+  render(<ViewerShell manifest={manifest} />)
+  fireEvent.click(screen.getByRole('button', { name: '标注' }))
+  fireEvent.click(screen.getByRole('menuitem', { name: '三维标注' }))
+  expect(screen.getByRole('textbox', { name: '标注文字' })).toBeVisible()
+  expect(screen.getByRole('button', { name: '删除' })).toBeDisabled()
+  fireEvent.click(screen.getByRole('button', { name: '更多' }))
+  expect(screen.getByRole('dialog', { name: '操作提示' })).toBeVisible()
+})
 
 test('selects a group and keeps mixed visibility in sync with the sheet and reset', () => {
   const layers = [
@@ -45,10 +88,34 @@ test('selects a group and keeps mixed visibility in sync with the sheet and rese
 test('switches to the complete measurement toolbar', () => {
   render(<ViewerShell manifest={manifest} />)
   fireEvent.click(screen.getByRole('button', { name: '测量' }))
-  for (const label of ['新建', '撤销', '清空', '闭合', '长度', '直径', '关闭']) {
+  for (const label of ['新建', '撤销', '清空', '长度', '直径', '角度', '面积', '完成', '关闭']) {
     expect(screen.getByRole('button', { name: label })).toBeInTheDocument()
   }
   expect(screen.queryByRole('button', { name: '方案' })).not.toBeInTheDocument()
+})
+
+test('routes measurement commands to the active engine tool', () => {
+  const command = vi.spyOn(ViewerEngine.prototype, 'toolCommand').mockImplementation(() => {})
+  render(<ViewerShell manifest={manifest} />)
+  fireEvent.click(screen.getByRole('button', { name: '测量' }))
+  fireEvent.click(screen.getByRole('button', { name: '长度' }))
+  expect(screen.getByRole('button', { name: '长度' })).toHaveClass('is-active')
+  fireEvent.click(screen.getByRole('button', { name: '直径' }))
+  expect(screen.getByRole('button', { name: '直径' })).toHaveClass('is-active')
+  expect(screen.getByRole('button', { name: '长度' })).not.toHaveClass('is-active')
+  fireEvent.click(screen.getByRole('button', { name: '角度' }))
+  expect(screen.getByRole('button', { name: '角度' })).toHaveClass('is-active')
+  fireEvent.click(screen.getByRole('button', { name: '面积' }))
+  expect(screen.getByRole('button', { name: '面积' })).toHaveClass('is-active')
+  fireEvent.click(screen.getByRole('button', { name: '新建' }))
+  fireEvent.click(screen.getByRole('button', { name: '撤销' }))
+  fireEvent.click(screen.getByRole('button', { name: '清空' }))
+  fireEvent.click(screen.getByRole('button', { name: '完成' }))
+  expect(command).toHaveBeenNthCalledWith(1, 'new')
+  expect(command).toHaveBeenNthCalledWith(2, 'undo')
+  expect(command).toHaveBeenNthCalledWith(3, 'clear')
+  expect(command).toHaveBeenNthCalledWith(4, 'finish')
+  command.mockRestore()
 })
 
 test('renders the structure bar from manifest data with its real volume', () => {

@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import type { ViewerManifest } from '../../api/sharedViewer'
 import { ViewerEngine } from '../../../packages/rendering-core/src/ViewerEngine'
 import type { ViewerTool } from './viewer.store'
+import type { ToolRecord } from '../../../packages/rendering-core/src/tools/ToolRecords'
 
-export interface ViewerCanvasHandle { reset(): void; setAutoRotate(value: boolean): void; setBackground(color: string): void; setVisible(id: string, value: boolean): void; activateTool(tool: ViewerTool | null): void; restoreLayerPositions(): void; toolCommand(command: string): void }
+export interface ViewerCanvasHandle { reset(): void; setAutoRotate(value: boolean): void; setBackground(color: string): void; setVisible(id: string, value: boolean): void; activateTool(tool: ViewerTool | null): void; restoreLayerPositions(): void; toolCommand(command: string): void; setAnnotationText(text: string): void; editAnnotation(id: string, text: string): void; restoreAnnotations(items: ToolRecord[]): void; removeRecord(id: string): void }
 
 export function ViewerCanvas({ manifest, engineRef, hidden = new Set<string>() }: { manifest: ViewerManifest; engineRef: React.MutableRefObject<ViewerCanvasHandle | null>; hidden?: Set<string> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -31,12 +32,14 @@ export function ViewerCanvas({ manifest, engineRef, hidden = new Set<string>() }
         id: layer.id, name: layer.name, color: layer.color, opacity: layer.opacity,
         visible: layer.visible, assets: layer.assets,
       })) }).then(() => {
+        if (disposed) return
         for (const layer of manifest.layers) {
           try { engine.setVisible(layer.id, !hiddenRef.current.has(layer.id)) } catch { /* failed resources remain unavailable */ }
         }
         if (!disposed && manifest.layers.length > 0 && !engine.layerSnapshots().some(layer => layer.loadState === 'ready')) {
           setInitializationFailed(true)
         }
+        canvasRef.current?.dispatchEvent(new CustomEvent('viewer-ready', { bubbles: true }))
       }).catch(() => { if (!disposed) setInitializationFailed(true) })
     } catch {
       queueMicrotask(() => { if (!disposed) setInitializationFailed(true) })

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-export type ViewerIconName = 'reset' | 'segment' | 'plan' | 'annotation' | 'measure' | 'view' | 'new' | 'undo' | 'clear' | 'closed' | 'length' | 'diameter' | 'close' | 'rotate' | 'move' | 'background' | 'eye' | 'eye-off' | 'play' | 'pause' | 'pencil' | 'page' | 'zoom' | 'window' | 'presets' | 'layout' | 'lut' | 'info'
+export type ViewerIconName = 'reset' | 'segment' | 'plan' | 'annotation' | 'measure' | 'view' | 'new' | 'undo' | 'clear' | 'closed' | 'angle' | 'finish' | 'length' | 'diameter' | 'close' | 'rotate' | 'move' | 'background' | 'eye' | 'eye-off' | 'play' | 'pause' | 'pencil' | 'page' | 'zoom' | 'window' | 'presets' | 'layout' | 'lut' | 'info'
 
 // Shapes mirror the reference viewer icon set: cube + circular arrow (reset),
 // segmented sphere (segment), report sheet (plan), speech bubble (annotation),
@@ -41,6 +41,8 @@ const paths: Record<ViewerIconName, ReactNode> = {
   undo: <><path d="M9 8 5 12l4 4" /><path d="M5 12h9a5 5 0 0 1 5 5" /></>,
   clear: <><path d="M6 7h12M9 7V4h6v3M8 7l1 13h6l1-13M10 10v7M14 10v7" /></>,
   closed: <><path d="M6 17c-2-5 2-10 7-9 4 1 5 6 2 9-3 3-8 2-9-2Z" /><path d="M12 8v8M8 12h8" /></>,
+  angle: <><path d="M5 19 12 5l7 14" /><path d="M8 15h8" /></>,
+  finish: <path d="m5 12 4.5 4.5L19 7" />,
   length: <><path d="M5 19 19 5" /><path d="m7 17-2 2M9 15l2 2M13 11l2 2M17 7l2 2" /></>,
   diameter: <><path d="M5 19 19 5" /><path d="m5 14 5 5M14 5l5 5" /></>,
   close: <><path d="m6 6 12 12M18 6 6 18" /></>,

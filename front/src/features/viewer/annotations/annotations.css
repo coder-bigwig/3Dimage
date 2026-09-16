@@ -2,8 +2,8 @@
 .annotation-controls { position: relative; z-index: 8; background: #eee; }
 .annotation-toolbar { position: relative; padding: 10px 12px 4px; color: #202020; }
 .annotation-toolbar-row { display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; }
-.annotation-toolbar-row > button { min-width: 48px; min-height: 48px; border: 1px solid #777; border-radius: 7px; background: transparent; color: #333; font-size: 20px; padding: 4px 8px; }
-.annotation-toolbar-row > button small { display: block; font-size: 14px; }
+.annotation-toolbar-row > button { min-width: 48px; min-height: 48px; border: 1px solid #777; border-radius: 7px; background: transparent; color: #333; font-size: 12px; padding: 4px 8px; }
+.annotation-toolbar-row > button small { display: block; font-size: 12px; }
 .annotation-toolbar button[aria-pressed=true] { border-color: #00aeeb; color: #00aeeb; }
 .annotation-toolbar button:disabled { opacity: .4; cursor: default; }
 .annotation-palette { display: grid; grid-template-columns: repeat(3, 34px); gap: 5px; padding: 6px; background: #fafafa; border-radius: 8px; }
@@ -41,19 +41,19 @@
 .drawing-text-entry { position: absolute; display: flex; flex-wrap: wrap; width: 210px; padding: 8px; gap: 5px; background: white; box-shadow: 0 3px 15px #0003; border-radius: 6px; }
 .drawing-text-entry input { width: 100%; color: #222; }
 .model-tool-label { position: absolute; z-index: 3; color: #ffff00; font-size: 20px; font-weight: 600; background: #496561dd; padding: 2px 5px; white-space: pre-wrap; max-width: 200px; overflow-wrap: anywhere; }
-.model-annotation-label { touch-action: none; user-select: none; cursor: pointer; text-shadow: 1px 1px 1px #000; }
+.model-tool-label.model-annotation-label { z-index: 6; pointer-events: auto; touch-action: none; user-select: none; cursor: pointer; text-shadow: 1px 1px 1px #000; }
 .model-annotation-label:focus { outline: 2px solid #00b9ff; }
 .annotation-leader { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
 .annotation-leader line { stroke: #233bff; stroke-width: 2; }
 .annotation-help-backdrop { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #0003; padding: 24px; }
-.annotation-help { background: white; border-radius: 14px; padding: 24px; max-width: 430px; color: #222; box-shadow: 0 12px 50px #0002; }
+.annotation-help { background: white; border-radius: 14px; padding: 0 24px 24px 24px; max-width: 430px; color: #222; box-shadow: 0 12px 50px #0002; }
 .annotation-help h3 { text-align: center; color: #999; font-weight: 400; }
 .annotation-help p { margin: 24px 0; }
 .viewer-shell--annotating .quick-rail, .viewer-shell--annotating .viewer-fab { display: none; }
 @media (max-width: 520px) {
   .annotation-toolbar { padding: 6px; }
   .annotation-toolbar-row { gap: 5px; }
-  .annotation-toolbar-row > button { min-width: 40px; min-height: 40px; font-size: 16px; padding: 3px 5px; }
+  .annotation-toolbar-row > button { min-width: 40px; min-height: 40px; font-size: 12px; padding: 3px 5px; }
   .annotation-palette { grid-template-columns: repeat(3, 28px); gap: 4px; }
   .annotation-palette button { width: 28px; height: 28px; font-size: 24px; }
   .annotation-toolbar-row > input { width: 160px; }

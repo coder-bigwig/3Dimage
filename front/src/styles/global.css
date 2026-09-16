@@ -563,3 +563,20 @@ button { min-width: 44px; min-height: 44px; font: inherit; }
 .ct-report h4 { margin: 10px 0 6px; font-size: 13px; font-weight: 600; color: #9fd6ff; }
 .ct-report ul { margin: 0 0 10px; padding-left: 18px; font-size: 13px; line-height: 1.7; }
 .ct-report p { margin: 0 0 10px; }
+
+.model-tool-label {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  font: 600 13px/1.2 Arial, sans-serif;
+}
+.model-measurement-label {
+  padding: 3px 7px;
+  border: 1px solid #ffd166;
+  border-radius: 4px;
+  color: #111;
+  background: rgb(255 236 150 / 94%);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 28%);
+}

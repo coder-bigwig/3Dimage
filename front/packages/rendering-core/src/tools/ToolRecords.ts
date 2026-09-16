@@ -4,7 +4,7 @@ import { measureClosedArea } from './ClosedAreaTool'
 
 export type RecordTool = 'length' | 'diameter' | 'angle' | 'closedArea' | 'annotation'
 export interface Anchor { layerId: string; position: [number, number, number] }
-export interface ToolRecord { id: string; tool: RecordTool; points: Anchor[]; label: string }
+export interface ToolRecord { id: string; tool: RecordTool; points: Anchor[]; label: string; labelOffset?: [number, number] }
 
 export class ToolRecords {
   items: ToolRecord[] = []
@@ -30,7 +30,21 @@ export class ToolRecords {
   private commit(item: ToolRecord) { this.remember(); this.items.push(item); this.pending = [] }
   private remember() { this.#history.push(structuredClone(this.items)); if (this.#history.length > 100) this.#history.shift() }
   undo() { if (this.pending.length) this.pending.pop(); else this.items = this.#history.pop() ?? this.items }
-  clear(tool: RecordTool) { this.remember(); this.pending = []; this.items = this.items.filter(item => (item.tool === 'annotation') !== (tool === 'annotation')) }
+  clear(tool: RecordTool) { this.remember(); this.pending = []; this.items = this.items.filter(item => item.tool !== tool) }
+  clearMeasurements() {
+    this.remember()
+    this.pending = []
+    this.items = this.items.filter(item => item.tool === 'annotation')
+  }
   remove(id: string) { this.remember(); this.items = this.items.filter(item => item.id !== id) }
+  editAnnotation(id: string, text: string, offset?: [number, number]) {
+    const item = this.items.find(record => record.id === id && record.tool === 'annotation')
+    if (!item) return
+    if (!text.trim() || text.trim().length > 200) throw new Error('标注文字须为 1–200 字')
+    if (offset && !offset.every(value => Number.isFinite(value) && Math.abs(value) <= 2000)) throw new Error('标签位置无效')
+    this.remember()
+    item.label = text.trim()
+    if (offset) item.labelOffset = [...offset]
+  }
   restore(items: ToolRecord[]) { this.items = structuredClone(items); this.pending = []; this.#history = [] }
 }

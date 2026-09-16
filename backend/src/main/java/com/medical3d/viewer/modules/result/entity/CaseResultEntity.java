@@ -6,11 +6,11 @@ import java.util.UUID;
 
 public record CaseResultEntity(UUID id, String caseCode, String title, String unit,
                                String coordinateSystem, int manifestVersion, String status,
-                               Instant createdAt, Instant updatedAt) {
+                               Instant createdAt, Instant updatedAt, String renderStyle) {
     public static CaseResultEntity published(UUID id, String caseCode, String title, String unit,
                                              String coordinateSystem, int manifestVersion) {
         Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
         return new CaseResultEntity(id, caseCode, title, unit, coordinateSystem,
-            manifestVersion, "PUBLISHED", now, now);
+            manifestVersion, "PUBLISHED", now, now, null);
     }
 }

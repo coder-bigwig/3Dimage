@@ -24,6 +24,7 @@ class ApplicationSmokeTest {
     @MockitoBean ViewerPlanMapper viewerPlanMapper;
     @MockitoBean MeasurementMapper measurementMapper;
     @MockitoBean AnnotationMapper annotationMapper;
+    @MockitoBean com.medical3d.viewer.modules.annotation.mapper.AnnotationDocumentMapper annotationDocumentMapper;
 
     @Test
     void contextLoads() {

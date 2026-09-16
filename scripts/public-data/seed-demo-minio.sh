@@ -24,3 +24,13 @@ seed_layer rs2 lung-middle-lobe-right
 seed_layer rs3 lung-lower-lobe-right
 seed_layer rs4 lung-upper-lobe-left
 seed_layer rs5 lung-lower-lobe-left
+
+# Register the exact refined meshes served at /share/viewer as server-backed assets.
+for layer in lung-upper-lobe-right lung-middle-lobe-right lung-lower-lobe-right lung-upper-lobe-left lung-lower-lobe-left lung-arteries lung-veins lung-airways; do
+  source_file="/seed-blender/${layer}.glb"
+  if [ ! -f "$source_file" ]; then
+    echo "Missing refined demo mesh: $source_file" >&2
+    exit 1
+  fi
+  mc cp "$source_file" "local/${MINIO_BUCKET}/demo/blender-lung/${layer}/high.glb"
+done

@@ -1,4 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+// @ts-expect-error Vitest provides Node's filesystem runtime without @types/node in this project.
+import { readFileSync } from 'node:fs'
+// @ts-expect-error Vitest provides Node's path runtime without @types/node in this project.
+import { resolve } from 'node:path'
 import { describe, expect, test, vi } from 'vitest'
 import { AnnotationToolbar } from './AnnotationToolbar'
 
@@ -21,6 +25,27 @@ function renderToolbar(onColor = vi.fn()) {
     />,
   )
   return onColor
+}
+
+function renderHelp() {
+  render(
+    <AnnotationToolbar
+      mode="3d"
+      color="#ff0000"
+      kind="pen"
+      text=""
+      selected={false}
+      ready
+      onColor={vi.fn()}
+      onKind={vi.fn()}
+      onText={vi.fn()}
+      onDelete={vi.fn()}
+      onUndo={vi.fn()}
+      onClear={vi.fn()}
+      onClose={vi.fn()}
+    />,
+  )
+  fireEvent.click(screen.getByRole('button', { name: '更多' }))
 }
 
 describe('AnnotationToolbar color controls', () => {
@@ -69,4 +94,13 @@ describe('AnnotationToolbar color controls', () => {
 
     expect(onColor).not.toHaveBeenCalled()
   })
+})
+
+test('keeps the help dialog top padding at zero while preserving the other sides', () => {
+  renderHelp()
+
+  expect(screen.getByRole('dialog', { name: '操作提示' })).toHaveClass('annotation-help')
+  const runtime = globalThis as typeof globalThis & { process: { cwd(): string } }
+  const stylesheet = readFileSync(resolve(runtime.process.cwd(), 'src/features/viewer/annotations/annotations.css'), 'utf8')
+  expect(stylesheet).toContain('.annotation-help { background: white; border-radius: 14px; padding: 0 24px 24px 24px;')
 })

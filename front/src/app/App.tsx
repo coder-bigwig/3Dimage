@@ -10,7 +10,7 @@ const fallbackPath = import.meta.env.DEV ? '/public-data' : '/share/invalid'
 export function App() {
   return (
     <Routes>
-      {import.meta.env.VITE_ENABLE_BLENDER_DEMO === 'true' && <Route path="/share/viewer" element={<PublicDatasetPage manifestUrl="/public-data/blender-trial/manifest.json" />} />}
+      {import.meta.env.VITE_ENABLE_BLENDER_DEMO === 'true' && <Route path="/share/viewer" element={<ShareViewerPage fallbackToken="demo-blender-token-000000000000000000" />} />}
       <Route path="/share/:token" element={<ShareViewerPage />} />
       <Route path="/reference" element={<ReferenceViewerPage />} />
       <Route path="/public-data" element={<PublicDatasetPage />} />

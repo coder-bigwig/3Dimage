@@ -145,7 +145,7 @@ export class ViewerEngine {
     this.#moveHistory = []
     this.setClip({ ...this.#clip, enabled: false })
     this.#tools.activate(null)
-    this.#tools.restore([])
+    this.#tools.restore(this.#tools.records.items.filter(item => item.tool === 'annotation'))
     this.fitToVisibleLayers()
   }
   activateTool(tool: InteractiveTool) { this.#drag.finish(); this.#drag.enabled = tool === null || tool === 'moveLayer'; this.setAutoRotate(false); this.#tools.activate(tool) }
@@ -157,6 +157,8 @@ export class ViewerEngine {
     this.#tools.refresh()
   }
   setAnnotationText(text: string) { this.#tools.text = text }
+  editAnnotation(id: string, text: string, offset?: [number, number]) { this.#tools.editAnnotation(id, text, offset) }
+  restoreAnnotations(items: ToolRecord[]) { this.#tools.restoreAnnotations(items) }
   toolSnapshot() { return this.#tools.snapshot() }
   toolCommand(command: string) {
     if (this.#tools.tool === 'moveLayer' && command === 'undo') {

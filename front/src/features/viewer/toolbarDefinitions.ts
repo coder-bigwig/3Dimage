@@ -4,7 +4,7 @@ export interface ToolbarAction {
   id: string
   label: string
   tool?: ViewerTool
-  command?: 'new' | 'undo' | 'clear' | 'close' | 'plan' | 'reset' | 'view' | 'screenshot'
+  command?: 'new' | 'undo' | 'clear' | 'finish' | 'close' | 'plan' | 'reset' | 'view' | 'screenshot'
 }
 
 export const toolbarDefinitions: Readonly<Record<ViewerMode, readonly ToolbarAction[]>> = {
@@ -18,7 +18,8 @@ export const toolbarDefinitions: Readonly<Record<ViewerMode, readonly ToolbarAct
   ],
   measure: [
     { id: 'new', label: '新建', command: 'new' }, { id: 'undo', label: '撤销', command: 'undo' },
-    { id: 'clear', label: '清空', command: 'clear' }, { id: 'closed', label: '闭合', tool: 'closedArea' },
+    { id: 'clear', label: '清空', command: 'clear' }, { id: 'angle', label: '角度', tool: 'angle' },
+    { id: 'closed', label: '面积', tool: 'closedArea' }, { id: 'finish', label: '完成', command: 'finish' },
     { id: 'length', label: '长度', tool: 'length' }, { id: 'diameter', label: '直径', tool: 'diameter' },
     { id: 'close', label: '关闭', command: 'close' },
   ],

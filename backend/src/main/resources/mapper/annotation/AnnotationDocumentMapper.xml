@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.medical3d.viewer.modules.annotation.mapper.AnnotationDocumentMapper">
+  <select id="find" resultType="string">
+    SELECT content::text FROM viewer_annotation_document WHERE result_id = #{resultId}
+  </select>
+  <insert id="save">
+    <choose>
+      <when test="version == 0">
+        INSERT INTO viewer_annotation_document(result_id, content, version)
+        VALUES (#{resultId}, CAST(#{content} AS jsonb), 1) ON CONFLICT (result_id) DO NOTHING
+      </when>
+      <otherwise>
+        UPDATE viewer_annotation_document SET content = CAST(#{content} AS jsonb), version = version + 1, updated_at = CURRENT_TIMESTAMP
+        WHERE result_id = #{resultId} AND version = #{version}
+      </otherwise>
+    </choose>
+  </insert>
+</mapper>

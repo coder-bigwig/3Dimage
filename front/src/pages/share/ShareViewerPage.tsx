@@ -14,17 +14,19 @@ function redactBrowserAddress() {
   }
 }
 
-export function ShareViewerPage() {
-  const { token = '' } = useParams()
+export function ShareViewerPage({ fallbackToken = '' }: { fallbackToken?: string } = {}) {
+  const { token: routeToken = '' } = useParams()
+  const token = routeToken === 'viewer' || !routeToken ? sessionStorage.getItem('active-viewer-share') ?? fallbackToken : routeToken
   const manifestQuery = useQuery({
-    queryKey: ['shared-viewer-manifest'],
+    queryKey: ['shared-viewer-manifest', token],
     queryFn: ({ signal }) => getSharedViewerManifest(token, signal),
     retry: (count, error) => error instanceof SharedViewerApiError && error.status >= 500 && count < 2,
   })
 
   useEffect(() => {
+    if (manifestQuery.isSuccess && token) sessionStorage.setItem('active-viewer-share', token)
     if (manifestQuery.isSuccess || manifestQuery.isError) redactBrowserAddress()
-  }, [manifestQuery.isError, manifestQuery.isSuccess])
+  }, [manifestQuery.isError, manifestQuery.isSuccess, token])
 
   if (manifestQuery.isPending) {
     return (
@@ -45,5 +47,5 @@ export function ShareViewerPage() {
     return <ShareErrorState error={error} onRetry={() => void manifestQuery.refetch()} />
   }
 
-  return <ViewerShell key={manifestQuery.data.resultId} manifest={manifestQuery.data} />
+  return <ViewerShell key={manifestQuery.data.resultId} manifest={manifestQuery.data} shareToken={token} />
 }
